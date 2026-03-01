@@ -1,0 +1,135 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Товары{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    .product-card {
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+    .product-card.discount-high {
+        background-color: #2E8B57;
+    }
+    .product-card.out-of-stock {
+        background-color: #ADD8E6;
+    }
+    .product-image {
+        max-width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    .price-old {
+        text-decoration: line-through;
+        color: red;
+    }
+    .price-new {
+        color: black;
+        font-weight: bold;
+    }
+    .filters {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+}
+.filters form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.filters input, .filters select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'Times New Roman', serif;
+}
+.filters .btn {
+    background-color: #00FA9A;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<p>Роль пользователя: {{ user.role }}</p>
+<h1>Список товаров</h1>
+
+{% if user.is_authenticated and user.role == 'admin' %}
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'product_add' %}" class="btn">Добавить товар</a>
+    </div>
+{% endif %}
+
+{% if user.is_authenticated and user.role == 'manager' or user.role == 'admin' %}
+<div class="filters">
+    <form method="get">
+        <input type="text" name="q" placeholder="Поиск..." value="{{ current_query }}">
+        
+        <select name="supplier">
+            <option value="all" {% if current_supplier == 'all' or not current_supplier %}selected{% endif %}>Все поставщики</option>
+            {% for supplier in suppliers %}
+                <option value="{{ supplier.id }}" {% if current_supplier|stringformat:"s" == supplier.id|stringformat:"s" %}selected{% endif %}>{{ supplier.name }}</option>
+            {% endfor %}
+        </select>
+        
+        <select name="sort">
+            <option value="">Без сортировки</option>
+            <option value="quantity_asc" {% if current_sort == 'quantity_asc' %}selected{% endif %}>Количество (по возрастанию)</option>
+            <option value="quantity_desc" {% if current_sort == 'quantity_desc' %}selected{% endif %}>Количество (по убыванию)</option>
+        </select>
+        
+        <button type="submit" class="btn">Применить</button>
+    </form>
+</div>
+{% endif %}
+
+<div class="product-grid">
+    {% for product in products %}
+        <div class="product-card 
+            {% if product.quantity_in_stock == 0 %}out-of-stock{% endif %}
+            {% if product.discount > 15 %}discount-high{% endif %}">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+            {% else %}
+                <img src="{% static 'images/picture.png' %}" alt="Нет фото" class="product-image">
+            {% endif %}
+            <h3>{{ product.name }}</h3>
+            <p>Категория: {{ product.category.name }}</p>
+            <p>{{ product.description|truncatewords:20 }}</p>
+            <p>Производитель: {{ product.manufacturer.name }}</p>
+            <p>Поставщик: {{ product.supplier.name }}</p>
+            <p>Цена: 
+                {% if product.discount > 0 %}
+                    <span class="price-old">{{ product.price }} руб.</span>
+                    <span class="price-new">{{ product.final_price|floatformat:2 }} руб.</span>
+                {% else %}
+                    {{ product.price }} руб.
+                {% endif %}
+            </p>
+            <p>Ед. измерения: {{ product.unit.name }}</p>
+            <p>Количество на складе: {{ product.quantity_in_stock }}</p>
+            <p>Скидка: {{ product.discount }}%</p>
+
+            {% if user.is_authenticated and user.role == 'admin' %}
+    <div class="admin-actions">
+        <a href="{% url 'product_edit' product.id %}" class="btn">Редактировать</a>
+        <a href="{% url 'product_delete' product.id %}" class="btn" onclick="return confirm('Вы уверены?');">Удалить</a>
+    </div>
+{% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

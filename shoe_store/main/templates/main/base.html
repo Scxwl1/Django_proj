@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Обувной магазин{% endblock %}</title>
+    {% load static %}
+    <link rel="icon" type="image/x-icon" href="{% static 'images/Icon.ico' %}">
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            background-color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #7FFF00;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            height: 50px;
+        }
+        .user-info {
+            font-size: 16px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .btn {
+            background-color: #00FA9A;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            text-decoration: none;
+            color: black;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="header">
+        <img src="{% static 'images/Icon.png' %}" alt="Логотип" class="logo">
+        <div class="user-info">
+            {% if user.is_authenticated %}
+                {{ user.last_name }} {{ user.first_name }}
+                {% if user.is_authenticated and user.role in 'manager admin' %}
+                <a href="{% url 'order_list' %}" class="btn">Заказы</a>
+            {% endif %}
+                <a href="{% url 'logout' %}" class="btn">Выйти</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn">Войти</a>
+                <a href="{% url 'product_list' %}" class="btn">Как гость</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

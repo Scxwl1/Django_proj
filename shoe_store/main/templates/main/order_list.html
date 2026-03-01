@@ -1,0 +1,88 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Заказы{% endblock %}
+
+{% block extra_css %}
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #7FFF00;
+    }
+    .btn {
+        background-color: #00FA9A;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 4px;
+        text-decoration: none;
+        color: black;
+        margin-right: 5px;
+    }
+    .btn-cancel {
+        background-color: #ccc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Заказы</h1>
+
+{% if user.is_authenticated and user.role == 'admin' %}
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'order_add' %}" class="btn">Добавить заказ</a>
+    </div>
+{% endif %}
+
+<table>
+    <thead>
+        <tr>
+            <th>Номер заказа</th>
+            <th>Статус</th>
+            <th>Адрес выдачи</th>
+            <th>Дата заказа</th>
+            <th>Дата выдачи</th>
+            <th>Клиент</th>
+            {% if user.role == 'admin' %}
+                <th>Действия</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.order_number }}</td>
+            <td>{{ order.get_status_display }}</td>
+            <td>{{ order.pickup_point }}</td>
+            <td>{{ order.order_date|date:"d.m.Y H:i" }}</td>
+            <td>{{ order.issue_date|date:"d.m.Y"|default:"—" }}</td>
+            <td>
+                {% if order.user %}
+                    {{ order.user.last_name }} {{ order.user.first_name }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+            {% if user.role == 'admin' %}
+                <td>
+                    <a href="{% url 'order_edit' order.id %}" class="btn">Редактировать</a>
+                    <a href="{% url 'order_delete' order.id %}" class="btn btn-cancel" onclick="return confirm('Удалить заказ?');">Удалить</a>
+                </td>
+            {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7">Нет заказов.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

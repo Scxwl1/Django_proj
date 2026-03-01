@@ -79,7 +79,7 @@ class Command(BaseCommand):
             if created:
                 self.stdout.write(f'Товар {name} создан')
 
-        def import_orders(self, file_path):
+    def import_orders(self, file_path):
         wb = openpyxl.load_workbook(file_path)
         sheet = wb.active
         status_map = {

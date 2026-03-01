@@ -1,0 +1,53 @@
+{% extends 'main/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+    .form-container form p {
+        margin-bottom: 15px;
+    }
+    .form-container label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .form-container input, .form-container select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: 'Times New Roman', serif;
+    }
+    .form-container .btn {
+        background-color: #00FA9A;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 4px;
+        margin-right: 10px;
+    }
+    .form-container .btn-cancel {
+        background-color: #ccc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>{{ title }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">Сохранить</button>
+        <a href="{% url 'order_list' %}" class="btn btn-cancel">Отмена</a>
+    </form>
+</div>
+{% endblock %}
