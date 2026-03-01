@@ -47,6 +47,7 @@ class Product(models.Model):
     quantity_in_stock = models.IntegerField(default=0)
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     image = models.ImageField(upload_to='products/', blank=True, null=True)
+    article = models.CharField(max_length=50, unique=True, verbose_name='Артикул')
 
     def __str__(self):
         return self.name
@@ -67,6 +68,7 @@ class Order(models.Model):
         ('cancelled', 'Отменён'),
     )
     order_number = models.CharField(max_length=20, unique=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders', verbose_name='Клиент')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     pickup_point = models.CharField(max_length=255)
     order_date = models.DateTimeField(auto_now_add=True)
